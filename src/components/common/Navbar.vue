@@ -53,9 +53,7 @@
             to="/cart"
             class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 4M7 13l-1.5 4m0 0h3.5m3.5-4v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8-4a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h6a2 2 0 012 2v0z" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
             <!-- Cart Badge (optional) -->
             <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               0
@@ -111,6 +109,7 @@
                 </div>
 
                 <router-link
+                  v-if="isCustomer"
                   to="/profile"
                   @click="closeUserMenu"
                   class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
@@ -304,7 +303,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 
-const { user, isAuthenticated, isAdmin, userName, logout } = useAuth()
+const { user, isAuthenticated, isAdmin, userName, logout ,isCustomer } = useAuth()
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)

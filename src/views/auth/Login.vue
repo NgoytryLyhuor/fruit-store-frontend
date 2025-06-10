@@ -178,7 +178,11 @@
   const isLoading = ref(false)
   const errorMessage = ref('')
 
-  const handleLogin = async () => {
+  const handleLogin = async (event) => {
+    // Always prevent default form submission
+    event.preventDefault()
+    event.stopPropagation()
+
     isLoading.value = true
     errorMessage.value = ''
 
@@ -188,22 +192,49 @@
         password: form.value.password
       })
 
-      if(response.data.success) {
-        // Use the auth composable to handle login
-        login(response.data.data.user)
+      // Handle successful response
+      if (response.data.success) {
+        // Store token or handle authentication
+        const { user, token } = response.data.data
+
+        // Call your login composable
+        await login(user, token)
 
         // Redirect based on role
-        if(response.data.data.user.role === 'admin') {
+        if (user.role === 'admin') {
           router.push({ name: 'admin-dashboard' })
         } else {
           router.push({ name: 'profile' })
         }
       } else {
+        // This shouldn't happen with proper API responses, but just in case
         errorMessage.value = response.data.message || 'Login failed. Please try again.'
       }
     } catch (error) {
       console.error('Login error:', error)
-      errorMessage.value = error.response?.data?.message || 'An error occurred during login. Please try again.'
+
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error status (4xx, 5xx)
+        const { status, data } = error.response
+
+        if (status === 422) {
+          // Validation errors
+          errorMessage.value = data.message || 'Please check your input.'
+        } else if (status === 401) {
+          // Authentication failed
+          errorMessage.value = data.message || 'Invalid email or password.'
+        } else {
+          // Other server errors
+          errorMessage.value = data.message || 'An error occurred. Please try again.'
+        }
+      } else if (error.request) {
+        // Network error
+        errorMessage.value = 'Network error. Please check your connection.'
+      } else {
+        // Other errors
+        errorMessage.value = 'An unexpected error occurred. Please try again.'
+      }
     } finally {
       isLoading.value = false
     }
