@@ -35,7 +35,7 @@
             class="group cursor-pointer">
             <div class="bg-white border border-gray-200 rounded-lg p-8 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-300 transform hover:-translate-y-1">
               <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-gray-200 transition-colors duration-300">
-                <component :is="category.icon" class="w-8 h-8 text-gray-700" />
+                <component :is="iconMap[category.icon]" class="w-8 h-8 text-gray-700" />
               </div>
               <h3 class="text-lg font-medium text-gray-900 mb-2">{{ category.name }}</h3>
               <p class="text-sm text-gray-500">{{ category.count }} items</p>
@@ -54,8 +54,7 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div v-for="product in featuredProducts" :key="product.id"
-            class="group cursor-pointer">
+          <div v-for="product in featuredProducts" :key="product.id" class="group">
             <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 hover:border-gray-300">
               <div class="relative overflow-hidden aspect-square">
                 <img :src="product.image_url" :alt="product.name"
@@ -78,8 +77,7 @@
                 <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
                 <div class="flex justify-between items-center">
                   <span class="text-xl font-medium text-gray-900">${{ product.price }}</span>
-                  <button
-                    class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
+                  <button class="cursor-pointer bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
                     Add to Cart
                   </button>
                 </div>
@@ -89,10 +87,10 @@
         </div>
 
         <div class="text-center mt-16">
-          <button
+          <router-link to="/category"
             class="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-50 transition-all duration-300">
             View All Products
-          </button>
+          </router-link>
         </div>
       </div>
     </section>
@@ -150,21 +148,10 @@
   </div>
 </template>
 
-<script>
-import {
-  SparklesIcon,
-  BoltIcon,
-  HeartIcon,
-  EnvelopeIcon,
-  GlobeAltIcon,
-  SunIcon,
-  BeakerIcon,
-  StarIcon
-} from '@heroicons/vue/24/outline'
-
-export default {
-  name: 'Home',
-  components: {
+<script setup>
+  import { ref, onMounted } from 'vue'
+  import api from '@/services/api'
+  import {
     SparklesIcon,
     BoltIcon,
     HeartIcon,
@@ -173,76 +160,58 @@ export default {
     SunIcon,
     BeakerIcon,
     StarIcon
-  },
-  data() {
-    return {
-      categories: [
-        {
-          id: 1,
-          name: 'Citrus',
-          icon: 'SunIcon',
-          count: 12
-        },
-        {
-          id: 2,
-          name: 'Tropical',
-          icon: 'GlobeAltIcon',
-          count: 18
-        },
-        {
-          id: 3,
-          name: 'Berries',
-          icon: 'StarIcon',
-          count: 8
-        },
-        {
-          id: 4,
-          name: 'Stone Fruits',
-          icon: 'BeakerIcon',
-          count: 15
-        }
-      ],
-      featuredProducts: [
-        {
-          id: 1,
-          name: 'Fresh Oranges',
-          price: 4.99,
-          image_url: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=400&h=400&fit=crop',
-          category: 'Citrus',
-          stock: 25,
-          description: 'Sweet and juicy oranges packed with vitamin C, perfect for fresh juice or snacking.'
-        },
-        {
-          id: 2,
-          name: 'Organic Bananas',
-          price: 2.99,
-          image_url: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=400&fit=crop',
-          category: 'Tropical',
-          stock: 30,
-          description: 'Perfectly ripe organic bananas, great source of potassium and natural energy.'
-        },
-        {
-          id: 3,
-          name: 'Fresh Strawberries',
-          price: 6.99,
-          image_url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&h=400&fit=crop',
-          category: 'Berries',
-          stock: 15,
-          description: 'Sweet and succulent strawberries, perfect for desserts or eating fresh.'
-        },
-        {
-          id: 4,
-          name: 'Green Apples',
-          price: 3.99,
-          image_url: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&h=400&fit=crop',
-          category: 'Stone Fruits',
-          stock: 20,
-          description: 'Crisp and tart green apples, excellent for baking or healthy snacking.'
-        }
-      ]
+  } from '@heroicons/vue/24/outline'
+
+  const iconMap = {
+    SunIcon,
+    GlobeAltIcon,
+    StarIcon,
+    BeakerIcon
+  }
+
+  const categories = ref([
+    {
+      id: 1,
+      name: 'Citrus',
+      icon: 'SunIcon',
+      count: 12
+    },
+    {
+      id: 2,
+      name: 'Tropical',
+      icon: 'GlobeAltIcon',
+      count: 18
+    },
+    {
+      id: 3,
+      name: 'Berries',
+      icon: 'StarIcon',
+      count: 8
+    },
+    {
+      id: 4,
+      name: 'Stone Fruits',
+      icon: 'BeakerIcon',
+      count: 15
+    }
+  ])
+
+  const featuredProducts = ref([])
+
+  const fetchFeaturedProducts = async () => {
+    try {
+      const response = await api.get('/fruits')
+      featuredProducts.value = response.data.data
+      console.log('Fetched products:', featuredProducts.value)
+    } catch (error) {
+      console.error('Error fetching featured products:', error)
+      featuredProducts.value = []
     }
   }
-}
+
+  onMounted(async () => {
+    await fetchFeaturedProducts()
+  });
 </script>
 
 <style scoped>

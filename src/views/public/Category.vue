@@ -32,10 +32,10 @@
               class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none bg-white text-gray-700"
             >
               <option value="">All Categories</option>
-              <option value="citrus">Citrus</option>
-              <option value="tropical">Tropical</option>
-              <option value="berries">Berries</option>
-              <option value="stone-fruits">Stone Fruits</option>
+              <option value="Citrus">Citrus</option>
+              <option value="Tropical">Tropical</option>
+              <option value="Berries">Berries</option>
+              <option value="Stone Fruits">Stone Fruits</option>
             </select>
 
             <!-- Sort Options -->
@@ -89,139 +89,138 @@
       <!-- Results Info -->
       <div class="mb-6 flex justify-between items-center">
         <p class="text-gray-600">
-          Showing {{ filteredProducts.length }} of {{ products.length }} products
+          Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} products
         </p>
         <div class="text-sm text-gray-500">
-          {{ filteredProducts.length }} items found
+          Page {{ pagination.current_page }} of {{ pagination.last_page }}
         </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
       </div>
 
       <!-- Products Grid/List -->
-      <div v-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div
-          v-for="product in paginatedProducts"
-          :key="product.id"
-          class="group cursor-pointer transform hover:-translate-y-1 transition-all duration-300"
-        >
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300">
-            <div class="relative overflow-hidden">
-              <img
-                :src="product.image_url"
-                :alt="product.name"
-                class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
-              >
-              <div class="absolute top-4 right-4">
-                <span
-                  :class="product.stock > 0 ? 'bg-white text-gray-900 border border-gray-200' : 'bg-gray-900 text-white'"
-                  class="px-2 py-1 rounded-full text-xs font-medium shadow-sm"
+      <template v-else>
+        <div v-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div
+            v-for="product in pagination.data"
+            :key="product.id"
+            class="group cursor-pointer transform hover:-translate-y-1 transition-all duration-300"
+          >
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300">
+              <div class="relative overflow-hidden">
+                <img
+                  :src="product.image_url"
+                  :alt="product.name"
+                  class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                 >
-                  {{ product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock' }}
-                </span>
-              </div>
-              <div class="absolute top-4 left-4">
-                <span class="bg-white bg-opacity-95 text-gray-700 px-2 py-1 rounded-full text-xs font-medium border border-gray-200">
-                  {{ product.category }}
-                </span>
-              </div>
-            </div>
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
-              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
-              <div class="flex justify-between items-center">
-                <span class="text-2xl font-bold text-gray-900">${{ product.price }}</span>
-                <button
-                  :disabled="product.stock === 0"
-                  :class="product.stock > 0 ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
-                  class="px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm disabled:transform-none transform hover:scale-105"
-                >
-                  {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- List View -->
-      <div v-else class="space-y-4">
-        <div
-          v-for="product in paginatedProducts"
-          :key="product.id"
-          class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 overflow-hidden"
-        >
-          <div class="flex flex-col md:flex-row">
-            <div class="md:w-64 h-48 md:h-auto">
-              <img
-                :src="product.image_url"
-                :alt="product.name"
-                class="w-full h-full object-cover"
-              >
-            </div>
-            <div class="flex-1 p-6">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <div class="flex items-center gap-3 mb-2">
-                    <h3 class="text-xl font-semibold text-gray-900">{{ product.name }}</h3>
-                    <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm font-medium">{{ product.category }}</span>
-                  </div>
-                  <p class="text-gray-600 mb-4">{{ product.description }}</p>
-                </div>
-                <div class="text-right">
-                  <div class="text-3xl font-bold text-gray-900 mb-2">${{ product.price }}</div>
-                  <span
-                    :class="product.stock > 0 ? 'text-gray-700 bg-gray-100 border border-gray-200' : 'text-gray-500 bg-gray-50 border border-gray-200'"
-                    class="px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {{ product.stock > 0 ? `${product.stock} available` : 'Out of Stock' }}
+                <div class="absolute top-4 left-4">
+                  <span class="bg-white bg-opacity-95 text-gray-700 px-2 py-1 rounded-full text-xs font-medium border border-gray-200">
+                    {{ product.category }}
                   </span>
                 </div>
               </div>
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                  <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                    <HeartIcon class="w-5 h-5" />
-                  </button>
-                  <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                    <ShareIcon class="w-5 h-5" />
+              <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
+                <div class="flex justify-between items-center">
+                  <span class="text-2xl font-bold text-gray-900">${{ product.price }}</span>
+                  <button
+                    :disabled="product.stock === 0"
+                    :class="product.stock > 0 ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
+                    class="px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm disabled:transform-none transform hover:scale-105"
+                  >
+                    {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
                   </button>
                 </div>
-                <button
-                  :disabled="product.stock === 0"
-                  :class="product.stock > 0 ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
-                  class="px-6 py-3 rounded-lg font-medium transition-all duration-200 disabled:transform-none transform hover:scale-105"
-                >
-                  {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
-                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- List View -->
+        <div v-else class="space-y-4">
+          <div
+            v-for="product in pagination.data"
+            :key="product.id"
+            class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 overflow-hidden"
+          >
+            <div class="flex flex-col md:flex-row">
+              <div class="md:w-64 h-48 md:h-auto">
+                <img
+                  :src="product.image_url"
+                  :alt="product.name"
+                  class="w-full h-full object-cover"
+                >
+              </div>
+              <div class="flex-1 p-6">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-xl font-semibold text-gray-900">{{ product.name }}</h3>
+                      <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm font-medium">{{ product.category }}</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">{{ product.description }}</p>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-3xl font-bold text-gray-900 mb-2">${{ product.price }}</div>
+                    <span
+                      :class="product.stock > 0 ? 'text-gray-700 bg-gray-100 border border-gray-200' : 'text-gray-500 bg-gray-50 border border-gray-200'"
+                      class="px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {{ product.stock > 0 ? `${product.stock} available` : 'Out of Stock' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center gap-4">
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                      <HeartIcon class="w-5 h-5" />
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                      <ShareIcon class="w-5 h-5" />
+                    </button>
+                  </div>
+                  <button
+                    :disabled="product.stock === 0"
+                    :class="product.stock > 0 ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
+                    class="px-6 py-3 rounded-lg font-medium transition-all duration-200 disabled:transform-none transform hover:scale-105"
+                  >
+                    {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
 
       <!-- Pagination -->
       <div class="mt-12 flex justify-center">
         <div class="flex items-center space-x-2">
           <button
-            @click="currentPage = Math.max(1, currentPage - 1)"
-            :disabled="currentPage === 1"
+            @click="prevPage"
+            :disabled="pagination.current_page === 1"
             class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
           >
             <ChevronLeftIcon class="w-5 h-5" />
           </button>
 
-          <span
+          <button
             v-for="page in visiblePages"
             :key="page"
-            @click="currentPage = page"
-            :class="page === currentPage ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'"
+            @click="goToPage(page)"
+            :class="page === pagination.current_page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'"
             class="px-4 py-2 rounded-lg border cursor-pointer transition-colors duration-200"
           >
             {{ page }}
-          </span>
+          </button>
 
           <button
-            @click="currentPage = Math.min(totalPages, currentPage + 1)"
-            :disabled="currentPage === totalPages"
+            @click="nextPage"
+            :disabled="pagination.current_page === pagination.last_page"
             class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
           >
             <ChevronRightIcon class="w-5 h-5" />
@@ -233,6 +232,7 @@
 </template>
 
 <script>
+import api from '@/services/api';
 import {
   MagnifyingGlassIcon,
   Squares2X2Icon,
@@ -245,7 +245,7 @@ import {
 } from '@heroicons/vue/24/outline'
 
 export default {
-  name: 'Products',
+  name: 'ProductsPage',
   components: {
     MagnifyingGlassIcon,
     Squares2X2Icon,
@@ -262,135 +262,101 @@ export default {
       selectedCategory: '',
       sortBy: 'name',
       viewMode: 'grid',
-      currentPage: 1,
-      itemsPerPage: 12,
-      products: [
-        {
-          id: 1,
-          name: 'Fresh Oranges',
-          price: 4.99,
-          image_url: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=400&h=300&fit=crop',
-          category: 'citrus',
-          stock: 25,
-          description: 'Sweet and juicy oranges packed with vitamin C, perfect for fresh juice or snacking.'
-        },
-        {
-          id: 2,
-          name: 'Organic Bananas',
-          price: 2.99,
-          image_url: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=300&fit=crop',
-          category: 'tropical',
-          stock: 30,
-          description: 'Perfectly ripe organic bananas, great source of potassium and natural energy.'
-        },
-        {
-          id: 3,
-          name: 'Fresh Strawberries',
-          price: 6.99,
-          image_url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&h=300&fit=crop',
-          category: 'berries',
-          stock: 15,
-          description: 'Sweet and succulent strawberries, perfect for desserts or eating fresh.'
-        },
-        {
-          id: 4,
-          name: 'Green Apples',
-          price: 3.99,
-          image_url: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&h=300&fit=crop',
-          category: 'stone-fruits',
-          stock: 20,
-          description: 'Crisp and tart green apples, excellent for baking or healthy snacking.'
-        },
-        {
-          id: 5,
-          name: 'Ripe Mangoes',
-          price: 5.99,
-          image_url: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&h=300&fit=crop',
-          category: 'tropical',
-          stock: 12,
-          description: 'Sweet tropical mangoes, perfect for smoothies and desserts.'
-        },
-        {
-          id: 6,
-          name: 'Fresh Lemons',
-          price: 3.49,
-          image_url: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=400&h=300&fit=crop',
-          category: 'citrus',
-          stock: 18,
-          description: 'Zesty lemons perfect for cooking, drinks, and natural cleaning.'
-        },
-        {
-          id: 7,
-          name: 'Blueberries',
-          price: 7.99,
-          image_url: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400&h=300&fit=crop',
-          category: 'berries',
-          stock: 8,
-          description: 'Antioxidant-rich blueberries, perfect for breakfast and snacking.'
-        },
-      ]
+      loading: false,
+      pagination: {
+        current_page: 1,
+        data: [],
+        first_page_url: '',
+        from: 1,
+        last_page: 1,
+        last_page_url: '',
+        links: [],
+        next_page_url: null,
+        path: '',
+        per_page: 8,
+        prev_page_url: null,
+        to: 8,
+        total: 0
+      }
     }
   },
   computed: {
-    filteredProducts() {
-      let filtered = this.products;
-
-      // Filter by search query
-      if (this.searchQuery) {
-        filtered = filtered.filter(product =>
-          product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
-
-      // Filter by category
-      if (this.selectedCategory) {
-        filtered = filtered.filter(product => product.category === this.selectedCategory);
-      }
-
-      // Sort products
-      filtered = [...filtered].sort((a, b) => {
-        switch (this.sortBy) {
-          case 'price-low':
-            return a.price - b.price;
-          case 'price-high':
-            return b.price - a.price;
-          case 'stock':
-            return b.stock - a.stock;
-          default:
-            return a.name.localeCompare(b.name);
-        }
-      });
-
-      return filtered;
-    },
-    totalPages() {
-      return Math.ceil(this.filteredProducts.length / this.itemsPerPage);
-    },
-    paginatedProducts() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.filteredProducts.slice(start, start + this.itemsPerPage);
-    },
     visiblePages() {
       const pages = [];
-      const start = Math.max(1, this.currentPage - 2);
-      const end = Math.min(this.totalPages, start + 4);
+      const current = this.pagination.current_page;
+      const last = this.pagination.last_page;
+      const delta = 2;
 
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
+      let left = current - delta;
+      let right = current + delta + 1;
+
+      for (let i = 1; i <= last; i++) {
+        if (i === 1 || i === last || (i >= left && i < right)) {
+          pages.push(i);
+        }
       }
+
       return pages;
     }
   },
   watch: {
     searchQuery() {
-      this.currentPage = 1;
+      this.debouncedFetchProducts();
     },
     selectedCategory() {
-      this.currentPage = 1;
+      this.debouncedFetchProducts();
     },
     sortBy() {
-      this.currentPage = 1;
+      this.debouncedFetchProducts();
+    }
+  },
+  created() {
+    this.debouncedFetchProducts = this.debounce(this.fetchProducts, 500);
+  },
+  mounted() {
+    this.fetchProducts();
+  },
+  methods: {
+    debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          func.apply(this, args);
+        }, wait);
+      };
+    },
+    async fetchProducts() {
+      this.loading = true;
+      try {
+        const params = {
+          page: this.pagination.current_page,
+        };
+
+        const response = await api.get('/fruits', { params });
+        this.pagination = response.data;
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    nextPage() {
+      if (this.pagination.current_page < this.pagination.last_page) {
+        this.pagination.current_page++;
+        this.fetchProducts();
+      }
+    },
+    prevPage() {
+      if (this.pagination.current_page > 1) {
+        this.pagination.current_page--;
+        this.fetchProducts();
+      }
+    },
+    goToPage(page) {
+      if (page === this.pagination.current_page) return;
+      this.pagination.current_page = page;
+      this.fetchProducts();
     }
   }
 }
