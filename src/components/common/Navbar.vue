@@ -53,10 +53,17 @@
             to="/cart"
             class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-            <!-- Cart Badge (optional) -->
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              0
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+              <circle cx="8" cy="21" r="1"/>
+              <circle cx="19" cy="21" r="1"/>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
+            <!-- Cart Badge with dynamic count -->
+            <span
+              v-if="cartCount > 0"
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+            >
+              {{ cartCount > 99 ? '99+' : cartCount }}
             </span>
           </router-link>
 
@@ -87,7 +94,7 @@
                   {{ userInitial }}
                 </span>
               </div>
-              <span class="hidden lg:block">{{ userName }}</span>
+              <span class="hidden lg:block">{{ user?.first_name }}</span>
               <svg class="w-4 h-4" :class="{ 'rotate-180': showUserMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
@@ -104,12 +111,12 @@
             >
               <div v-show="showUserMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
                 <div class="px-4 py-3 border-b border-gray-100">
-                  <p class="text-sm font-medium text-gray-900">{{ userName }}</p>
+                  <p class="text-sm font-medium text-gray-900">{{ user?.first_name }} {{ user?.last_name }}</p>
                   <p class="text-sm text-gray-500">{{ user?.email }}</p>
                 </div>
 
                 <router-link
-                  v-if="isCustomer"
+                  v-if="!isAdmin"
                   to="/profile"
                   @click="closeUserMenu"
                   class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
@@ -215,10 +222,10 @@
               @click="closeMobileMenu"
               class="flex items-center px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200"
             >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 4M7 13l-1.5 4m0 0h3.5m3.5-4v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8-4a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h6a2 2 0 012 2v0z" />
-              </svg>
               Cart
+              <span v-if="cartCount > 0" class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                {{ cartCount }}
+              </span>
             </router-link>
           </div>
 
@@ -252,13 +259,14 @@
                     </span>
                   </div>
                   <div>
-                    <p class="text-base font-medium text-gray-900">{{ userName }}</p>
+                    <p class="text-base font-medium text-gray-900">{{ user?.first_name }} {{ user?.last_name }}</p>
                     <p class="text-sm text-gray-500">{{ user?.email }}</p>
                   </div>
                 </div>
               </div>
               <div class="px-2 space-y-1">
                 <router-link
+                  v-if="!isAdmin"
                   to="/profile"
                   @click="closeMobileMenu"
                   class="flex items-center px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200"
@@ -303,21 +311,61 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 
-const { user, isAuthenticated, isAdmin, userName, logout ,isCustomer } = useAuth()
+// Get auth functions and data
+const { user, isAuthenticated, isAdmin, logout, checkAuth } = useAuth()
 
+// Menu state - these control if menus are open/closed
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
+const cartCount = ref(0)
+
+// Ref for the user menu container
 const userMenuRef = ref(null)
 
-// Computed properties
+// Store cleanup functions
+let cartUpdateInterval = null
+
+// Make first letter of user.first_name
 const userInitial = computed(() => {
-  if (userName.value) {
-    return userName.value.charAt(0).toUpperCase()
+  if (user.value?.first_name) {
+    return user.value.first_name.charAt(0).toUpperCase()
   }
   return 'U'
 })
 
-// Methods
+// This function counts items in cart
+const updateCartCount = () => {
+  try {
+    // Get cart items from browser storage
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]')
+    // Add up all quantities
+    cartCount.value = cartItems.reduce((total, item) => total + item.quantity, 0)
+  } catch (error) {
+    console.error('Error reading cart:', error)
+    cartCount.value = 0
+  }
+}
+
+// Handle clicks outside the user menu
+const handleClickOutside = (event) => {
+  if (userMenuRef.value && !userMenuRef.value.contains(event.target)) {
+    showUserMenu.value = false
+  }
+}
+
+// Listen for cart changes from other parts of app
+const handleStorageChange = (event) => {
+  if (event.key === 'cartItems') {
+    updateCartCount()
+  }
+}
+
+// Listen for custom cart update events
+const handleCartUpdate = () => {
+  updateCartCount()
+}
+
+// Menu functions
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
@@ -340,19 +388,43 @@ const handleLogout = () => {
   closeMobileMenu()
 }
 
-// Close dropdown when clicking outside
-const handleClickOutside = (event) => {
-  if (userMenuRef.value && !userMenuRef.value.contains(event.target)) {
-    closeUserMenu()
-  }
-}
+// FIXED: Register onUnmounted at the top level of setup(), before any async operations
+onUnmounted(() => {
+  // Clean up event listeners
+  window.removeEventListener('storage', handleStorageChange)
+  window.removeEventListener('cartUpdated', handleCartUpdate)
+  document.removeEventListener('click', handleClickOutside)
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  // Clean up interval
+  if (cartUpdateInterval) {
+    clearInterval(cartUpdateInterval)
+  }
 })
 
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+// Setup when component loads
+onMounted(async () => {
+  // Check authentication status when component mounts
+  try {
+    const isValid = await checkAuth()
+
+    if (isValid) {
+      updateCartCount()
+    }
+  } catch (error) {
+    console.error('Error checking authentication:', error)
+  }
+
+  // Listen for changes in localStorage (from other tabs)
+  window.addEventListener('storage', handleStorageChange)
+
+  // Listen for custom cart events (from same page)
+  window.addEventListener('cartUpdated', handleCartUpdate)
+
+  // Listen for clicks outside user menu
+  document.addEventListener('click', handleClickOutside)
+
+  // Update cart count every 2 seconds (simple solution)
+  cartUpdateInterval = setInterval(updateCartCount, 2000)
 })
 </script>
 
@@ -361,12 +433,10 @@ onUnmounted(() => {
   @apply bg-gray-100 text-gray-900;
 }
 
-/* Smooth transitions */
 .transition-all {
   transition-property: all;
 }
 
-/* Custom scrollbar for dropdown if needed */
 .dropdown-menu {
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) transparent;

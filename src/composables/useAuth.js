@@ -1,75 +1,82 @@
 // composables/useAuth.js
 import { ref, computed } from 'vue'
+import api from '@/services/api'
 import { useRouter } from 'vue-router'
 
-// Global reactive state
+// Global state - shared across all components
 const user = ref(null)
-const isLoading = ref(false)
+const token = ref(localStorage.getItem('token'))
 
-// Initialize user from localStorage
-const initializeAuth = () => {
-  const storedUser = localStorage.getItem('user')
-  if (storedUser) {
-    try {
-      user.value = JSON.parse(storedUser)
-    } catch (error) {
-      console.error('Error parsing stored user:', error)
-      localStorage.removeItem('user')
-    }
-  }
-}
+export const useAuth = () => {
+  const router = useRouter() // Move this inside the function
 
-// Initialize on first load
-initializeAuth()
+  const isAuthenticated = computed(() => !!token.value && !!user.value)
 
-export function useAuth() {
-  const router = useRouter()
-
-  // Computed properties
-  const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
-  const isCustomer = computed(() => user.value?.role === 'customer')
-  const userName = computed(() => user.value?.name || user.value?.email || 'User')
 
   // Login function
-  const login = (userData) => {
+  const login = async (userData, authToken) => {
+    localStorage.setItem('token', authToken)
+    token.value = authToken
     user.value = userData
-    localStorage.setItem('user', JSON.stringify(userData))
   }
 
   // Logout function
   const logout = () => {
-    user.value = null
+    localStorage.removeItem('token')
     localStorage.removeItem('user')
+    token.value = null
+    user.value = null
     router.push({ name: 'home' })
   }
 
-  // Check if user has specific role
-  const hasRole = (role) => {
-    return user.value?.role === role
+  // Check if user is still valid (call this on app startup)
+  const checkAuth = async () => {
+    const storedToken = localStorage.getItem('token')
+
+    if (!storedToken) {
+      return false
+    }
+
+    try {
+      const response = await api.get('/auth/me')
+
+      if (response.data.success) {
+        token.value = storedToken
+        user.value = response.data.data.user
+        return true
+      } else {
+        logout()
+        return false
+      }
+    } catch (error) {
+      logout()
+      return false
+    }
   }
 
-  // Check if user has any of the specified roles
-  const hasAnyRole = (roles) => {
-    return roles.includes(user.value?.role)
+  // Refresh user data from server
+  const refreshUser = async () => {
+    if (!token.value) return
+
+    try {
+      const response = await api.get('/auth/me')
+      if (response.data.success) {
+        user.value = response.data.data.user
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error)
+    }
   }
 
   return {
-    // State
     user: computed(() => user.value),
-    isLoading,
-
-    // Computed
+    token: computed(() => token.value),
     isAuthenticated,
     isAdmin,
-    isCustomer,
-    userName,
-
-    // Methods
     login,
     logout,
-    hasRole,
-    hasAnyRole,
-    initializeAuth
+    checkAuth,
+    refreshUser
   }
 }

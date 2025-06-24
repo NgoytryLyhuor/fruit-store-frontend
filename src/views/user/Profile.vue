@@ -30,11 +30,12 @@
 
         <!-- Main Content -->
         <div class="lg:col-span-3">
+
           <!-- Personal Information -->
           <div v-if="activeTab === 'personal'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             <div class="flex items-center justify-between mb-8">
               <h2 class="text-2xl font-light text-gray-900">Personal Information</h2>
-              <button 
+              <button
                 @click="editMode = !editMode"
                 class="text-gray-600 hover:text-gray-900 transition-colors duration-200"
               >
@@ -48,20 +49,20 @@
                   <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                   <input
                     id="firstName"
-                    v-model="profile.firstName"
+                    v-model="user.first_name"
                     :disabled="!editMode"
                     type="text"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 bg-gray-50 text-gray-500"
                   >
                 </div>
                 <div>
                   <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
                   <input
                     id="lastName"
-                    v-model="profile.lastName"
+                    v-model="user.last_name"
                     :disabled="!editMode"
                     type="text"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 bg-gray-50 text-gray-500"
                   >
                 </div>
               </div>
@@ -70,21 +71,10 @@
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                 <input
                   id="email"
-                  v-model="profile.email"
+                  v-model="user.email"
                   :disabled="!editMode"
                   type="email"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
-                >
-              </div>
-
-              <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                <input
-                  id="phone"
-                  v-model="profile.phone"
-                  :disabled="!editMode"
-                  type="tel"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 bg-gray-50 text-gray-500"
                 >
               </div>
 
@@ -109,30 +99,44 @@
           <!-- Order History -->
           <div v-if="activeTab === 'orders'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             <h2 class="text-2xl font-light text-gray-900 mb-8">Order History</h2>
-            
-            <div class="space-y-6">
-              <div v-for="order in orders" :key="order.id" class="border border-gray-200 rounded-lg p-6">
+
+            <div v-if="ordersItems.length === 0" class="text-center py-8">
+              <p class="text-gray-500">No orders found</p>
+            </div>
+
+            <div v-else class="space-y-6">
+              <div v-for="order in ordersItems" :key="order.id" class="border border-gray-200 rounded-lg p-6">
                 <div class="flex items-center justify-between mb-4">
                   <div>
                     <h3 class="text-lg font-medium text-gray-900">Order #{{ order.id }}</h3>
-                    <p class="text-sm text-gray-600">{{ order.date }} • {{ order.items.length }} items</p>
+                    <p class="text-sm text-gray-600">
+                    {{ formatDate(order.created_at) }} • {{ order.order_items?.length || 0 }} items
+                  </p>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-semibold text-gray-900">${{ order.total.toFixed(2) }}</div>
+                    <div class="text-lg font-semibold text-gray-900">${{ order.total_amount }}</div>
                     <span :class="getStatusColor(order.status)" class="inline-flex px-2 py-1 text-xs font-medium rounded-full">
                       {{ order.status }}
                     </span>
                   </div>
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div v-for="item in order.items" :key="item.id" class="flex items-center space-x-3">
-                    <img :src="item.image_url" :alt="item.name" class="w-12 h-12 object-cover rounded-lg">
+
+                <div v-if="order.order_items && order.order_items.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div v-for="item in order.order_items" :key="item.id" class="flex items-center space-x-3">
+                    <img
+                      :src="item.fruit.image_url"
+                      :alt="item.fruit.name"
+                      class="w-12 h-12 object-cover"
+                    >
                     <div>
-                      <p class="text-sm font-medium text-gray-900">{{ item.name }}</p>
+                      <p class="text-sm font-medium text-gray-900">{{ item.fruit.name }}</p>
                       <p class="text-xs text-gray-600">Qty: {{ item.quantity }} • ${{ item.price }}</p>
                     </div>
                   </div>
+                </div>
+
+                <div v-else class="text-sm text-gray-500 italic">
+                  No items in this order
                 </div>
               </div>
             </div>
@@ -141,46 +145,72 @@
           <!-- Addresses -->
           <div v-if="activeTab === 'addresses'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             <div class="flex items-center justify-between mb-8">
-              <h2 class="text-2xl font-light text-gray-900">Saved Addresses</h2>
-              <button 
-                @click="showAddressForm = true"
-                class="bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
+              <h2 class="text-2xl font-light text-gray-900">Saved Address</h2>
+              <button
+                @click="editModeAddress = !editModeAddress"
+                class="text-gray-600 hover:text-gray-900 transition-colors duration-200"
               >
-                Add Address
+                <PencilIcon class="w-5 h-5" />
               </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div v-for="address in addresses" :key="address.id" class="border border-gray-200 rounded-lg p-6">
-                <div class="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 class="font-medium text-gray-900">{{ address.label }}</h3>
-                    <span v-if="address.isDefault" class="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full mt-1">
-                      Default
-                    </span>
-                  </div>
-                  <div class="flex space-x-2">
-                    <button class="text-gray-400 hover:text-gray-600">
-                      <PencilIcon class="w-4 h-4" />
-                    </button>
-                    <button class="text-gray-400 hover:text-red-600">
-                      <TrashIcon class="w-4 h-4" />
-                    </button>
-                  </div>
+            <form @submit.prevent="saveAddressInfo" class="space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                  <input
+                    id="city"
+                    v-model="user.city"
+                    :disabled="!editModeAddress"
+                    type="text"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 bg-gray-50 text-gray-500"
+                  >
                 </div>
-                <div class="text-sm text-gray-600 space-y-1">
-                  <p>{{ address.street }}</p>
-                  <p>{{ address.city }}, {{ address.state }} {{ address.zipCode }}</p>
-                  <p>{{ address.country }}</p>
+                <div>
+                  <label for="postal_code" class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                  <input
+                    id="postal_code"
+                    v-model="user.postal_code"
+                    :disabled="!editModeAddress"
+                    type="text"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 bg-gray-50 text-gray-500"
+                  >
                 </div>
               </div>
-            </div>
+
+              <div>
+                <label for="street" class="block text-sm font-medium text-gray-700 mb-2">Street</label>
+                <input
+                  id="street"
+                  v-model="user.street"
+                  :disabled="!editModeAddress"
+                  type="text"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 bg-gray-50 text-gray-500"
+                >
+              </div>
+
+              <div v-if="editModeAddress" class="flex space-x-4">
+                <button
+                  type="submit"
+                  class="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
+                >
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  @click="editModeAddress = false"
+                  class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
 
           <!-- Settings -->
           <div v-if="activeTab === 'settings'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             <h2 class="text-2xl font-light text-gray-900 mb-8">Account Settings</h2>
-            
+
             <div class="space-y-8">
               <!-- Notifications -->
               <div>
@@ -192,9 +222,9 @@
                       <p class="text-sm text-gray-600">{{ notification.description }}</p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        v-model="notification.enabled" 
+                      <input
+                        type="checkbox"
+                        v-model="notification.enabled"
                         class="sr-only peer"
                       >
                       <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
@@ -213,7 +243,7 @@
                       id="currentPassword"
                       v-model="passwordForm.current"
                       type="password"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                      class="text-gray-500 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
                     >
                   </div>
                   <div>
@@ -222,7 +252,7 @@
                       id="newPassword"
                       v-model="passwordForm.new"
                       type="password"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                      class="text-gray-500 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
                     >
                   </div>
                   <div>
@@ -231,7 +261,7 @@
                       id="confirmPassword"
                       v-model="passwordForm.confirm"
                       type="password"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                      class="text-gray-500 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
                     >
                   </div>
                   <button
@@ -247,10 +277,14 @@
         </div>
       </div>
     </div>
+
+    <Snackbar ref="snackbar" />
+
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref , onMounted } from 'vue'
 import {
   UserIcon,
   ShoppingBagIcon,
@@ -259,144 +293,159 @@ import {
   PencilIcon,
   TrashIcon
 } from '@heroicons/vue/24/outline'
+import api from '@/services/api'
+import { useAuth } from '@/composables/useAuth'
+import Snackbar from '@/components/Snackbar.vue'
 
-export default {
-  name: 'Profile',
-  components: {
-    UserIcon,
-    ShoppingBagIcon,
-    MapPinIcon,
-    CogIcon,
-    PencilIcon,
-    TrashIcon
+const { user , refreshUser } = useAuth()
+const activeTab = ref('personal')
+const editMode = ref(false)
+const editModeAddress = ref(false)
+const ordersItems = ref([])
+const snackbar = ref(null)
+const passwordForm = ref({
+  current: '',
+  new: '',
+  confirm: ''
+})
+
+const tabs = ref([
+  { id: 'personal', name: 'Personal Info', icon: 'UserIcon' },
+  { id: 'orders', name: 'Order History', icon: 'ShoppingBagIcon' },
+  { id: 'addresses', name: 'Addresses', icon: 'MapPinIcon' },
+  { id: 'settings', name: 'Settings', icon: 'CogIcon' }
+])
+
+const ordersData = async () => {
+  try {
+    const response = await api.get('/orders')
+    ordersItems.value = response.data.data
+  } catch (error) {
+    snackbar.value.showSnackbar('Failed to load order history', 'error')
+  }
+}
+
+const formatDate = (dateString) => {
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  };
+  return new Date(dateString).toLocaleString('en-US', options);
+};
+
+const notificationSettings = ref([
+  {
+    id: 1,
+    title: 'Order Updates',
+    description: 'Get notified about your order status',
+    enabled: true
   },
-  data() {
-    return {
-      activeTab: 'personal',
-      editMode: false,
-      showAddressForm: false,
-      tabs: [
-        { id: 'personal', name: 'Personal Info', icon: 'UserIcon' },
-        { id: 'orders', name: 'Order History', icon: 'ShoppingBagIcon' },
-        { id: 'addresses', name: 'Addresses', icon: 'MapPinIcon' },
-        { id: 'settings', name: 'Settings', icon: 'CogIcon' }
-      ],
-      profile: {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567'
-      },
-      orders: [
-        {
-          id: '12345',
-          date: 'March 15, 2024',
-          status: 'Delivered',
-          total: 24.97,
-          items: [
-            {
-              id: 1,
-              name: 'Fresh Oranges',
-              quantity: 2,
-              price: 4.99,
-              image_url: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=100&h=100&fit=crop'
-            },
-            {
-              id: 2,
-              name: 'Organic Bananas',
-              quantity: 1,
-              price: 2.99,
-              image_url: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=100&h=100&fit=crop'
-            }
-          ]
-        },
-        {
-          id: '12344',
-          date: 'March 10, 2024',
-          status: 'Processing',
-          total: 18.96,
-          items: [
-            {
-              id: 3,
-              name: 'Fresh Strawberries',
-              quantity: 2,
-              price: 6.99,
-              image_url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=100&h=100&fit=crop'
-            }
-          ]
-        }
-      ],
-      addresses: [
-        {
-          id: 1,
-          label: 'Home',
-          street: '123 Main Street',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94102',
-          country: 'United States',
-          isDefault: true
-        },
-        {
-          id: 2,
-          label: 'Work',
-          street: '456 Business Ave',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94105',
-          country: 'United States',
-          isDefault: false
-        }
-      ],
-      notificationSettings: [
-        {
-          id: 1,
-          title: 'Order Updates',
-          description: 'Get notified about your order status',
-          enabled: true
-        },
-        {
-          id: 2,
-          title: 'Promotional Emails',
-          description: 'Receive special offers and discounts',
-          enabled: false
-        },
-        {
-          id: 3,
-          title: 'New Products',
-          description: 'Be the first to know about new arrivals',
-          enabled: true
-        }
-      ],
-      passwordForm: {
+  {
+    id: 2,
+    title: 'Promotional Emails',
+    description: 'Receive special offers and discounts',
+    enabled: false
+  },
+  {
+    id: 3,
+    title: 'New Products',
+    description: 'Be the first to know about new arrivals',
+    enabled: true
+  }
+])
+
+const savePersonalInfo = async () => {
+  try {
+    const userData = {
+      first_name: user.value.first_name,
+      last_name: user.value.last_name,
+      email: user.value.email,
+    }
+
+    await api.post("/auth/update", userData)
+    editMode.value = false
+    refreshUser()
+
+    snackbar.value.showSnackbar('Personal info updated successfully!')
+  } catch (error) {
+    snackbar.value.showSnackbar('Failed to update personal info', 'error')
+  }
+}
+
+const saveAddressInfo = async () => {
+  try {
+    const addressData = {
+      street: user.value.street,
+      postal_code: user.value.postal_code,
+      city: user.value.city
+    }
+
+    await api.post('/auth/update', addressData)
+    editModeAddress.value = false
+    refreshUser()
+    snackbar.value.showSnackbar('Address updated successfully!')
+  } catch (error) {
+    snackbar.value.showSnackbar('Failed to update address', 'error')
+  }
+}
+
+const getStatusColor = (status) => {
+  const colors = {
+    'processing': 'bg-yellow-100 text-yellow-800',
+    'shipped': 'bg-blue-100 text-blue-800',
+    'delivered': 'bg-green-100 text-green-800',
+    'cancelled': 'bg-red-100 text-red-800'
+  }
+  return colors[status] || 'bg-gray-100 text-gray-800'
+}
+
+onMounted(() => {
+  ordersData()
+})
+
+const changePassword = async () => {
+  // Validation
+  if (!passwordForm.value.current || !passwordForm.value.new || !passwordForm.value.confirm) {
+    snackbar.value.showSnackbar('Please fill in all password fields', 'error')
+    return
+  }
+
+  if (passwordForm.value.new !== passwordForm.value.confirm) {
+    snackbar.value.showSnackbar('New passwords do not match', 'error')
+    return
+  }
+
+  if (passwordForm.value.new.length < 6) {
+    snackbar.value.showSnackbar('New password must be at least 6 characters', 'error')
+    return
+  }
+
+  try {
+    const passwordData = {
+      current_password: passwordForm.value.current,
+      password: passwordForm.value.new,
+    }
+
+    const response = await api.post('/auth/update', passwordData)
+
+    if (response.data.success) {
+      passwordForm.value = {
         current: '',
         new: '',
         confirm: ''
       }
+
+      snackbar.value.showSnackbar('Password updated successfully!')
+    } else {
+      snackbar.value.showSnackbar(response.data.message || 'Failed to update password', 'error')
     }
-  },
-  methods: {
-    savePersonalInfo() {
-      // Handle saving personal information
-      console.log('Saving personal info:', this.profile)
-      this.editMode = false
-    },
-    
-    getStatusColor(status) {
-      const colors = {
-        'Delivered': 'bg-green-100 text-green-800',
-        'Processing': 'bg-yellow-100 text-yellow-800',
-        'Shipped': 'bg-blue-100 text-blue-800',
-        'Cancelled': 'bg-red-100 text-red-800'
-      }
-      return colors[status] || 'bg-gray-100 text-gray-800'
-    },
-    
-    changePassword() {
-      // Handle password change
-      console.log('Changing password')
-      this.passwordForm = { current: '', new: '', confirm: '' }
-    }
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to update password'
+    snackbar.value.showSnackbar(errorMessage, 'error')
   }
 }
 </script>

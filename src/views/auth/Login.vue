@@ -178,11 +178,8 @@
   const isLoading = ref(false)
   const errorMessage = ref('')
 
-  const handleLogin = async (event) => {
-    // Always prevent default form submission
-    event.preventDefault()
-    event.stopPropagation()
-
+  // Your updated handleLogin function
+  const handleLogin = async () => {
     isLoading.value = true
     errorMessage.value = ''
 
@@ -192,48 +189,27 @@
         password: form.value.password
       })
 
-      // Handle successful response
       if (response.data.success) {
-        // Store token or handle authentication
         const { user, token } = response.data.data
 
-        // Call your login composable
+        // Use the login function from useAuth
         await login(user, token)
 
-        // Redirect based on role
+        // Redirect based on user role
         if (user.role === 'admin') {
           router.push({ name: 'admin-dashboard' })
         } else {
           router.push({ name: 'profile' })
         }
       } else {
-        // This shouldn't happen with proper API responses, but just in case
         errorMessage.value = response.data.message || 'Login failed. Please try again.'
       }
     } catch (error) {
-      console.error('Login error:', error)
-
-      // Handle different types of errors
-      if (error.response) {
-        // Server responded with error status (4xx, 5xx)
-        const { status, data } = error.response
-
-        if (status === 422) {
-          // Validation errors
-          errorMessage.value = data.message || 'Please check your input.'
-        } else if (status === 401) {
-          // Authentication failed
-          errorMessage.value = data.message || 'Invalid email or password.'
-        } else {
-          // Other server errors
-          errorMessage.value = data.message || 'An error occurred. Please try again.'
-        }
-      } else if (error.request) {
-        // Network error
-        errorMessage.value = 'Network error. Please check your connection.'
+      // Handle network errors or other issues
+      if (error.response?.data?.message) {
+        errorMessage.value = error.response.data.message
       } else {
-        // Other errors
-        errorMessage.value = 'An unexpected error occurred. Please try again.'
+        errorMessage.value = 'Something went wrong. Please try again.'
       }
     } finally {
       isLoading.value = false

@@ -11,24 +11,39 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('token')
+    const storedToken = localStorage.getItem('token')
+    let token = null
+
+    if (storedToken) {
+      try {
+        // Try to parse as JSON first (since useAuth stores it as JSON)
+        token = JSON.parse(storedToken)
+      } catch (error) {
+        // If it's not JSON, treat it as plain string
+        token = storedToken
+      }
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // Remove the console.warn - it's normal to not have a token sometimes
+
     return config
   },
-  error => Promise.reject(error)
+  error => {
+    console.error('Request interceptor error:', error)
+    return Promise.reject(error)
+  }
 )
 
-// Response interceptor for error handling
 api.interceptors.response.use(
   response => response,
   error => {
-    // Only redirect on 401 if it's NOT a login request
-    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
+    if (error.response?.status === 401) {
+      console.warn('Unauthorized request - redirecting to login')
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
     }
     return Promise.reject(error)
   }

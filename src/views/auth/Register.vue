@@ -14,6 +14,16 @@
 
       <!-- Registration Form -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <!-- Show error message if registration fails -->
+        <div v-if="errorMessage" class="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Show success message -->
+        <div v-if="successMessage" class="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg">
+          {{ successMessage }}
+        </div>
+
         <form class="space-y-6" @submit.prevent="handleRegister">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -26,7 +36,7 @@
                 type="text"
                 v-model="form.firstName"
                 required
-                class="w-full text-gray-500 text-gray-500 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                class="w-full text-gray-500 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
                 placeholder="John"
               >
             </div>
@@ -59,20 +69,6 @@
               required
               class="w-full text-gray-500 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
               placeholder="john@example.com"
-            >
-          </div>
-
-          <div>
-            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-              Phone number (optional)
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              v-model="form.phone"
-              class="w-full text-gray-500 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
-              placeholder="+1 (555) 123-4567"
             >
           </div>
 
@@ -162,23 +158,6 @@
             </div>
           </div>
 
-          <div class="flex items-start">
-            <div class="flex items-center h-5">
-              <input
-                id="newsletter"
-                name="newsletter"
-                type="checkbox"
-                v-model="form.newsletter"
-                class="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
-              >
-            </div>
-            <div class="ml-3 text-sm">
-              <label for="newsletter" class="text-gray-700">
-                Subscribe to our newsletter for updates and special offers
-              </label>
-            </div>
-          </div>
-
           <div>
             <button
               type="submit"
@@ -206,29 +185,26 @@
             </div>
           </div>
 
-          <!-- Social Registration -->
-          <div class="grid grid-cols-2 gap-3">
+          <!-- Google Registration Button -->
+          <div class="w-full">
             <button
               type="button"
-              class="w-full text-gray-500 inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200"
+              @click="handleGoogleRegister"
+              :disabled="isGoogleLoading"
+              class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg class="w-5 h-5" viewBox="0 0 24 24">
+              <svg v-if="!isGoogleLoading" class="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span class="ml-2">Google</span>
-            </button>
-
-            <button
-              type="button"
-              class="w-full text-gray-500 inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              <svg v-else class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="ml-2">Facebook</span>
+              <span v-if="!isGoogleLoading">Continue with Google</span>
+              <span v-else>Connecting to Google...</span>
             </button>
           </div>
         </form>
@@ -247,101 +223,213 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '@/services/api'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 
-export default {
-  name: 'Register',
-  components: {
-    EyeIcon,
-    EyeSlashIcon
-  },
-  data() {
-    return {
-      form: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        password: '',
-        confirmPassword: '',
-        acceptTerms: false,
-        newsletter: false
-      },
-      showPassword: false,
-      showConfirmPassword: false,
-      isLoading: false
-    }
-  },
-  computed: {
-    passwordStrength() {
-      const password = this.form.password
-      if (!password) return 0
+const router = useRouter()
 
-      let strength = 0
-      if (password.length >= 8) strength++
-      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++
-      if (/\d/.test(password)) strength++
-      if (/[^a-zA-Z\d]/.test(password)) strength++
+// Form data for regular registration
+const form = ref({
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  acceptTerms: false
+})
 
-      return strength
-    },
-    passwordStrengthText() {
-      const strength = this.passwordStrength
-      if (!this.form.password) return 'Enter a password'
-      if (strength === 1) return 'Weak password'
-      if (strength === 2) return 'Fair password'
-      if (strength === 3) return 'Good password'
-      if (strength === 4) return 'Strong password'
-      return 'Very weak password'
-    },
-    passwordsMatch() {
-      return this.form.password === this.form.confirmPassword
-    },
-    isFormValid() {
-      return (
-        this.form.firstName &&
-        this.form.lastName &&
-        this.form.email &&
-        this.form.password &&
-        this.form.confirmPassword &&
-        this.passwordsMatch &&
-        this.passwordStrength >= 2 &&
-        this.form.acceptTerms
-      )
+// UI state
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
+const isLoading = ref(false)
+const isGoogleLoading = ref(false)
+
+// Messages
+const errorMessage = ref('')
+const successMessage = ref('')
+
+// Check password strength (0-4)
+const passwordStrength = computed(() => {
+  const password = form.value.password
+  if (!password) return 0
+
+  let strength = 0
+  if (password.length >= 8) strength++
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++
+  if (/\d/.test(password)) strength++
+  if (/[^a-zA-Z\d]/.test(password)) strength++
+
+  return strength
+})
+
+// Password strength text
+const passwordStrengthText = computed(() => {
+  const strength = passwordStrength.value
+  if (!form.value.password) return 'Enter a password'
+  if (strength === 1) return 'Weak password'
+  if (strength === 2) return 'Fair password'
+  if (strength === 3) return 'Good password'
+  if (strength === 4) return 'Strong password'
+  return 'Very weak password'
+})
+
+// Check if passwords match
+const passwordsMatch = computed(() => {
+  return form.value.password === form.value.confirmPassword
+})
+
+// Check if form is valid
+const isFormValid = computed(() => {
+  return (
+    form.value.firstName &&
+    form.value.lastName &&
+    form.value.email &&
+    form.value.password &&
+    form.value.confirmPassword &&
+    passwordsMatch.value &&
+    passwordStrength.value >= 2 &&
+    form.value.acceptTerms
+  )
+})
+
+// Get color for password strength indicator
+const getPasswordStrengthColor = (index) => {
+  const strength = passwordStrength.value
+  if (index <= strength) {
+    if (strength === 1) return 'bg-red-400'
+    if (strength === 2) return 'bg-yellow-400'
+    if (strength === 3) return 'bg-blue-400'
+    if (strength === 4) return 'bg-green-400'
+  }
+  return 'bg-gray-200'
+}
+
+// Handle regular registration (email/password)
+const handleRegister = async () => {
+  // Clear previous messages
+  errorMessage.value = ''
+  successMessage.value = ''
+  isLoading.value = true
+
+  try {
+    // Prepare data for Laravel API
+    const registrationData = {
+      first_name: form.value.firstName,
+      last_name: form.value.lastName,
+      email: form.value.email,
+      password: form.value.password,
+      role: 'customer' // Default role
     }
-  },
-  methods: {
-    getPasswordStrengthColor(index) {
-      const strength = this.passwordStrength
-      if (index <= strength) {
-        if (strength === 1) return 'bg-red-400'
-        if (strength === 2) return 'bg-yellow-400'
-        if (strength === 3) return 'bg-blue-400'
-        if (strength === 4) return 'bg-green-400'
+
+    // Send registration request to Laravel API
+    const response = await api.post('/auth/register', registrationData)
+
+    // Check if registration was successful
+    if (response.data.success) {
+      successMessage.value = response.data.message
+
+      // Store user data and token in localStorage (for persistence)
+      localStorage.setItem('user', JSON.stringify(response.data.data.user))
+      localStorage.setItem('token', response.data.data.token)
+
+      // Set authorization header for future requests
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`
+
+      // Redirect to dashboard or home page after 2 seconds
+      setTimeout(() => {
+        router.push('/dashboard') // Change to your desired route
+      }, 2000)
+    } else {
+      errorMessage.value = response.data.message || 'Registration failed'
+    }
+
+  } catch (error) {
+    console.error('Registration error:', error)
+
+    // Handle different types of errors
+    if (error.response) {
+      // Server responded with error status
+      if (error.response.data && error.response.data.message) {
+        errorMessage.value = error.response.data.message
+      } else if (error.response.data && error.response.data.errors) {
+        // Handle validation errors
+        const errors = error.response.data.errors
+        const errorMessages = Object.values(errors).flat()
+        errorMessage.value = errorMessages.join(', ')
+      } else {
+        errorMessage.value = 'Registration failed. Please try again.'
       }
-      return 'bg-gray-200'
-    },
-    async handleRegister() {
-      this.isLoading = true
-
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000))
-
-        // Handle registration logic here
-        console.log('Registration form submitted:', this.form)
-
-        // Redirect to login or dashboard
-        this.$router.push('/login')
-      } catch (error) {
-        console.error('Registration error:', error)
-      } finally {
-        this.isLoading = false
-      }
+    } else if (error.request) {
+      // Request was made but no response received
+      errorMessage.value = 'Unable to connect to server. Please check your internet connection.'
+    } else {
+      // Something else happened
+      errorMessage.value = 'An unexpected error occurred. Please try again.'
     }
+  } finally {
+    isLoading.value = false
   }
 }
+
+// Handle Google registration
+const handleGoogleRegister = async () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+  isGoogleLoading.value = true
+
+  try {
+    // Replace with your Laravel backend URL
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    window.location.href = `${backendUrl}/auth/google`
+  } catch (error) {
+    console.error('Google registration error:', error)
+    errorMessage.value = 'Google registration failed. Please try again.'
+    isGoogleLoading.value = false
+  }
+}
+
+// When component is mounted, check if user came back from Google OAuth
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const token = urlParams.get('token')
+  const user = urlParams.get('user')
+  const error = urlParams.get('error')
+
+  if (token && user) {
+    try {
+      const userData = JSON.parse(decodeURIComponent(user))
+
+      // Store user data and token
+      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('token', token)
+
+      // Set authorization header
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+      successMessage.value = 'Google registration successful! Redirecting...'
+
+      // Clear URL parameters
+      const cleanUrl = window.location.origin + window.location.pathname
+      window.history.replaceState({}, document.title, cleanUrl)
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 2000)
+    } catch (e) {
+      console.error('Error parsing user data:', e)
+      errorMessage.value = 'Error processing Google registration data'
+    }
+  } else if (error) {
+    errorMessage.value = decodeURIComponent(error)
+    // Clear error from URL
+    const cleanUrl = window.location.origin + window.location.pathname
+    window.history.replaceState({}, document.title, cleanUrl)
+  }
+})
 </script>
 
 <style scoped>
@@ -361,4 +449,3 @@ input:focus {
   animation: spin 1s linear infinite;
 }
 </style>
-

@@ -9,26 +9,8 @@ import ForgotPassword from '../views/auth/ForgotPassword.vue'
 import Cart from '../views/user/Cart.vue'
 import Profile from '../views/user/Profile.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
-
-// Authentication helper functions
-const isAuthenticated = () => {
-  const user = localStorage.getItem('user')
-  return !!user
-}
-
-const getUserRole = () => {
-  const user = localStorage.getItem('user')
-  if (user) {
-    try {
-      const userData = JSON.parse(user)
-      return userData.role
-    } catch (error) {
-      console.error('Error parsing user data:', error)
-      return null
-    }
-  }
-  return null
-}
+import Checkout from '../views/user/Checkout.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,12 +60,21 @@ const router = createRouter({
       }
     },
     {
+      path: '/checkout',
+      name: 'checkout',
+      component: Checkout,
+      meta: {
+        requiresAuth: true,
+        allowedRoles: ['customer','admin']
+      }
+    },
+    {
       path: '/cart',
       name: 'cart',
       component: Cart,
       meta: {
         requiresAuth: true,
-        allowedRoles: ['customer', 'admin']
+        allowedRoles: ['customer','admin']
       }
     },
     {
@@ -92,7 +83,7 @@ const router = createRouter({
       component: Profile,
       meta: {
         requiresAuth: true,
-        allowedRoles: ['customer', 'admin']
+        allowedRoles: ['customer']
       }
     },
     {
@@ -109,21 +100,34 @@ const router = createRouter({
 
 // Navigation guards
 router.beforeEach((to, from, next) => {
-  const authenticated = isAuthenticated()
-  const userRole = getUserRole()
+  // Get fresh values inside the guard
+  const { isAuthenticated, isAdmin } = useAuth()
+  const authenticated = isAuthenticated.value
+  const userIsAdmin = isAdmin.value
 
-  // Check if route requires authentication
-  if (to.meta.requiresAuth) {
-    if (!authenticated) {
-      // Redirect to home if not authenticated
-      next({ name: 'home' })
-      return
+  // Handle guest-only routes (login, register, etc.)
+  if (to.meta.requiresGuest && authenticated) {
+    if (userIsAdmin) {
+      next({ name: 'admin-dashboard' })
+    } else {
+      next({ name: 'profile' })
     }
+    return
+  }
 
-    // Check role-based access
-    if (to.meta.allowedRoles && !to.meta.allowedRoles.includes(userRole)) {
-      // Redirect based on user role
-      if (userRole === 'admin') {
+  // Handle routes that require authentication
+  if (to.meta.requiresAuth && !authenticated) {
+    next({ name: 'login' })
+    return
+  }
+
+  // Handle role-based access
+  if (to.meta.requiresAuth && authenticated && to.meta.allowedRoles) {
+    const userRole = userIsAdmin ? 'admin' : 'customer'
+
+    if (!to.meta.allowedRoles.includes(userRole)) {
+      // Redirect to appropriate dashboard based on role
+      if (userIsAdmin) {
         next({ name: 'admin-dashboard' })
       } else {
         next({ name: 'profile' })
@@ -132,17 +136,7 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Check if route requires guest (not logged in)
-  if (to.meta.requiresGuest && authenticated) {
-    // Redirect logged-in users away from auth pages
-    if (userRole === 'admin') {
-      next({ name: 'admin-dashboard' })
-    } else {
-      next({ name: 'profile' })
-    }
-    return
-  }
-
+  // Allow navigation
   next()
 })
 
