@@ -127,16 +127,22 @@
 
                   <!-- Add to cart button with count badge -->
                   <div class="relative">
-                    <button @click="handleAddToCart(product)"
-                      class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
-                      Add to Cart
+                    <button
+                      @click="handleAddToCart(product)"
+                      :disabled="product.stock <= 0"
+                      :class="[
+                        'relative cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105',
+                        product.stock > 0
+                          ? 'bg-gray-900 text-white hover:bg-gray-800'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed hover:scale-100'
+                      ]"
+                    >
+                      {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+                      <span v-if="getCartCount(product.id) > 0 && product.stock > 0"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {{ getCartCount(product.id) }}
+                      </span>
                     </button>
-
-                    <!-- Cart count badge - only show if count > 0 -->
-                    <span v-if="getCartCount(product.id) > 0"
-                      class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {{ getCartCount(product.id) }}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -181,16 +187,22 @@
                     </button>
                   </div>
                   <div class="relative">
-                    <button @click="handleAddToCart(product)"
-                      class="bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
-                      Add to Cart
+                    <button
+                      @click="handleAddToCart(product)"
+                      :disabled="product.stock <= 0"
+                      :class="[
+                        'relative cursor-pointer px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105',
+                        product.stock > 0
+                          ? 'bg-gray-900 text-white hover:bg-gray-800'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed hover:scale-100'
+                      ]"
+                    >
+                      {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+                      <span v-if="getCartCount(product.id) > 0 && product.stock > 0"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {{ getCartCount(product.id) }}
+                      </span>
                     </button>
-
-                    <!-- Cart count badge - only show if count > 0 -->
-                    <span v-if="getCartCount(product.id) > 0"
-                      class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {{ getCartCount(product.id) }}
-                    </span>
                   </div>
 
                 </div>
@@ -243,8 +255,10 @@ import {
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import api from '@/services/api'
 import { useAuth } from '@/composables/useAuth'
+import { useRouter } from 'vue-router'
 import StockModal from '@/components/StockModal.vue'
 
+const router = useRouter()
 const { isAuthenticated } = useAuth()
 const stockModal = ref(null)
 const selectedProductName = ref('')
