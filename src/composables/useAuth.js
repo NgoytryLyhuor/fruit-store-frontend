@@ -7,8 +7,20 @@ import { useRouter } from 'vue-router'
 const user = ref(null)
 const token = ref(localStorage.getItem('token'))
 
+// Load user from localStorage if available
+if (token.value) {
+  const storedUser = localStorage.getItem('user')
+  if (storedUser) {
+    try {
+      user.value = JSON.parse(storedUser)
+    } catch (e) {
+      localStorage.removeItem('user')
+    }
+  }
+}
+
 export const useAuth = () => {
-  const router = useRouter() // Move this inside the function
+  const router = useRouter()
 
   const isAuthenticated = computed(() => !!token.value && !!user.value)
 
@@ -17,6 +29,7 @@ export const useAuth = () => {
   // Login function
   const login = async (userData, authToken) => {
     localStorage.setItem('token', authToken)
+    localStorage.setItem('user', JSON.stringify(userData))
     token.value = authToken
     user.value = userData
   }
@@ -39,18 +52,34 @@ export const useAuth = () => {
     }
 
     try {
-      const response = await api.get('/auth/me')
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-      if (response.data.success) {
+      const response = await api.get('/auth/me', {
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      if (response.data.status) {
         token.value = storedToken
         user.value = response.data.data.user
+        localStorage.setItem('user', JSON.stringify(user.value))
         return true
       } else {
         logout()
         return false
       }
     } catch (error) {
-      logout()
+      if (error.name === 'AbortError') {
+        console.warn('Auth check timed out')
+      }
+      // Don't logout on network errors - user might be offline
+      // Only logout if we get a clear 401/403 response
+      if (error.response && [401, 403].includes(error.response.status)) {
+        logout()
+      }
       return false
     }
   }
@@ -61,8 +90,9 @@ export const useAuth = () => {
 
     try {
       const response = await api.get('/auth/me')
-      if (response.data.success) {
+      if (response.data.status) {
         user.value = response.data.data.user
+        localStorage.setItem('user', JSON.stringify(user.value))
       }
     } catch (error) {
       console.error('Failed to refresh user data:', error)

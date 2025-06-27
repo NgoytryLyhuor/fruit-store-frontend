@@ -12,14 +12,12 @@
             Premium organic fruits sourced directly from local farms, delivered fresh to your doorstep
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              class="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105">
+            <router-link
+              to="/category"
+              class="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105 flex items-center justify-center"
+            >
               Shop Collection
-            </button>
-            <button
-              class="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-50 transition-all duration-300">
-              Learn More
-            </button>
+            </router-link>
           </div>
         </div>
       </div>

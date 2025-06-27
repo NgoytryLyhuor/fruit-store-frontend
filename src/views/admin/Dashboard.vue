@@ -234,9 +234,8 @@
     </div>
 
     <!-- Product Modal -->
-    <div v-if="isProductModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 p-8">
+    <div v-if="isProductModalOpen" class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50" @click="isProductModalOpen = false">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 p-8" @click.stop>
         <h2 class="text-2xl font-semibold text-gray-800 mb-6">
           {{ modalMode === 'add' ? 'Add New Product' : 'Edit Product' }}
         </h2>
@@ -340,9 +339,8 @@
 
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="isDeleteModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+    <div v-if="isDeleteModalOpen" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click="isDeleteModalOpen = false">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100" @click.stop>
         <!-- Modal Header -->
         <div class="p-6 border-b border-gray-200">
           <div class="flex items-center">
@@ -416,13 +414,13 @@
 
 
     <!-- Order Details Modal -->
-    <div v-if="isOrderDetailsOpen && orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 p-8">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold text-gray-800">Order Details</h2>
-        <button @click="isOrderDetailsOpen = false" class="text-gray-500 hover:text-gray-900 text-xl">&times;</button>
-      </div>
-      <div class="bg-gray-50 rounded-lg p-4 mb-6">
+    <div v-if="isOrderDetailsOpen && orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      @click="isOrderDetailsOpen = false">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 p-8" @click.stop>
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-semibold text-gray-800">Order Details</h2>
+          <button @click="isOrderDetailsOpen = false" class="text-gray-500 hover:text-gray-900 text-xl">&times;</button>
+        </div>
         <div class="mb-6">
           <div class="text-gray-700 mb-2"><strong>Order ID:</strong> #{{ orderDetailsModal.id }}</div>
           <div class="text-gray-700 mb-2"><strong>Customer:</strong> {{ orderDetailsModal.delivery_address?.first_name }} {{ orderDetailsModal.delivery_address?.last_name }}</div>
@@ -454,19 +452,18 @@
           </tbody>
           </table>
         </div>
-      </div>
-      <div class="px-6 py-4 rounded-b-xl flex justify-end space-x-3">
-        <button
-        @click="isOrderDetailsOpen = false"
-        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-        >
-        Close
-        </button>
-      </div>
+        <div class="px-6 py-4 rounded-b-xl flex justify-end space-x-3">
+          <button
+          @click="isOrderDetailsOpen = false"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+          >
+          Close
+          </button>
+        </div>
       </div>
     </div>
 
-  <Snackbar ref="snackbar" />
+    <Snackbar ref="snackbar" />
 
   </div>
 </template>
@@ -520,6 +517,7 @@ const categories = [
   'Tropical',
   'Berries',
   'Stone Fruits',
+  'Exotic Fruit',
   'Melons'
 ]
 
@@ -679,6 +677,7 @@ const openProductModal = (mode, product = null) => {
 
 // CRUD Functions
 const saveProduct = async () => {
+  isProductModalOpen.value = false
   try {
     if (modalMode.value === 'add') {
       const newProduct = {
@@ -696,7 +695,6 @@ const saveProduct = async () => {
       snackbar.value.showSnackbar('Product updated successfully!')
     }
     await fetchFruits()
-    isProductModalOpen.value = false
   } catch (error) {
     console.error('Error saving product:', error)
     snackbar.value.showSnackbar('Failed to save product. Please try again.', 'error')

@@ -224,7 +224,8 @@
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        v-model="notification.enabled"
+                        :checked="notification.enabled"
+                        @change="toggleNotification(notification)"
                         class="sr-only peer"
                       >
                       <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
@@ -309,6 +310,38 @@ const passwordForm = ref({
   confirm: ''
 })
 
+const loadNotifications = async () => {
+  try {
+    const response = await api.get('/notification-settings')
+    notificationSettings.value = response.data.data
+  } catch (error) {
+    snackbar.value.showSnackbar('Failed to load notifications', 'error')
+  }
+}
+
+const toggleNotification = async (notification) => {
+  notification.enabled = !notification.enabled
+
+  // Prepare the payload as required by backend
+  const payload = {
+    notificationSettings: notificationSettings.value.map(n => ({
+      id: n.id,
+      enabled: n.enabled
+    }))
+  }
+
+  try {
+    const response = await api.put('/notification-settings', payload)
+    if (response.data.status) {
+      snackbar.value.showSnackbar('Notification settings updated successfully!')
+    } else {
+      snackbar.value.showSnackbar(response.data.message || 'Failed to update notification settings', 'error')
+    }
+  } catch (error) {
+    snackbar.value.showSnackbar('Failed to update notification settings', 'error')
+  }
+}
+
 const tabs = ref([
   { id: 'personal', name: 'Personal Info', icon: 'UserIcon' },
   { id: 'orders', name: 'Order History', icon: 'ShoppingBagIcon' },
@@ -343,12 +376,6 @@ const notificationSettings = ref([
     title: 'Order Updates',
     description: 'Get notified about your order status',
     enabled: true
-  },
-  {
-    id: 2,
-    title: 'Promotional Emails',
-    description: 'Receive special offers and discounts',
-    enabled: false
   },
   {
     id: 3,
@@ -405,6 +432,7 @@ const getStatusColor = (status) => {
 
 onMounted(() => {
   ordersData()
+  loadNotifications()
 })
 
 const changePassword = async () => {
@@ -432,7 +460,7 @@ const changePassword = async () => {
 
     const response = await api.post('/auth/update', passwordData)
 
-    if (response.data.success) {
+    if (response.data.status) {
       passwordForm.value = {
         current: '',
         new: '',

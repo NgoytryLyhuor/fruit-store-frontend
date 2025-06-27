@@ -11,6 +11,7 @@ import Profile from '../views/user/Profile.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import Checkout from '../views/user/Checkout.vue'
 import { useAuth } from '@/composables/useAuth'
+import ResetPassword from '@/views/auth/ResetPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,7 +41,7 @@ const router = createRouter({
       name: 'login',
       component: Login,
       meta: {
-        requiresGuest: true // Redirect if already logged in
+        requiresGuest: true
       }
     },
     {
@@ -48,7 +49,7 @@ const router = createRouter({
       name: 'register',
       component: Register,
       meta: {
-        requiresGuest: true // Redirect if already logged in
+        requiresGuest: true
       }
     },
     {
@@ -56,7 +57,15 @@ const router = createRouter({
       name: 'forgot-password',
       component: ForgotPassword,
       meta: {
-        requiresGuest: true // Redirect if already logged in
+        requiresGuest: true
+      }
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPassword,
+      meta: {
+        requiresGuest: true
       }
     },
     {

@@ -35,8 +35,8 @@
                     type="text"
                     id="firstName"
                     v-model="form.firstName"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
-                    placeholder="John"
+                    class="text-gray-600  w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                    placeholder="Sokha"
                   >
                 </div>
                 <div>
@@ -45,8 +45,8 @@
                     type="text"
                     id="lastName"
                     v-model="form.lastName"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
-                    placeholder="Doe"
+                    class="text-gray-600  w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                    placeholder="Chan"
                   >
                 </div>
               </div>
@@ -57,8 +57,8 @@
                   type="email"
                   id="email"
                   v-model="form.email"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
-                  placeholder="john@example.com"
+                  class="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                  placeholder="sokha@example.com"
                 >
               </div>
 
@@ -68,8 +68,8 @@
                   type="tel"
                   id="phone"
                   v-model="form.phone"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
-                  placeholder="+1 (555) 123-4567"
+                  class="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                  placeholder="+855 12 345 678"
                 >
               </div>
 
@@ -78,7 +78,7 @@
                 <select
                   id="subject"
                   v-model="form.subject"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
+                  class="text-gray-600 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200"
                 >
                   <option value="">Select a subject</option>
                   <option value="general">General Inquiry</option>
@@ -95,14 +95,14 @@
                   id="message"
                   v-model="form.message"
                   rows="6"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 resize-none"
+                  class="text-gray-600  w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none transition-all duration-200 resize-none"
                   placeholder="Tell us how we can help you..."
                 ></textarea>
               </div>
 
               <button
                 type="submit"
-                class="w-full bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
+                class="text-gray-600 w-full bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
               >
                 Send Message
               </button>
@@ -161,26 +161,34 @@
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-12">
           <h2 class="text-3xl lg:text-4xl font-light text-gray-900 mb-4">Visit Our Store</h2>
-          <p class="text-gray-600 max-w-2xl mx-auto">Come see our fresh selection in person at our flagship location</p>
+          <p class="text-gray-600 max-w-2xl mx-auto">Come see our fresh selection in person at our Phnom Penh location</p>
         </div>
 
         <div class="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
           <div class="grid grid-cols-1 lg:grid-cols-2">
             <!-- Map Placeholder -->
             <div class="bg-gray-100 h-96 lg:h-auto flex items-center justify-center">
-              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5073.207961212311!2d104.8804844!3d11.627087500000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3109513dc76a6be3%3A0x57dd2f45980c7759!2sJVGJ%2BR5Q%2C%20Phnom%20Penh!5e1!3m2!1sen!2skh!4v1749401651841!5m2!1sen!2skh" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.767433008373!2d104.92320961475704!3d11.562126391806897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDMzJzQzLjciTiAxMDTCsDU1JzIzLjUiRQ!5e0!3m2!1sen!2skh!4v1698765432100!5m2!1sen!2skh"
+                width="100%"
+                height="100%"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
 
             <!-- Store Information -->
             <div class="p-8">
-              <h3 class="text-2xl font-medium text-gray-900 mb-6">Pure Flave Flagship Store</h3>
+              <h3 class="text-2xl font-medium text-gray-900 mb-6">Pure Flave Phnom Penh Store</h3>
 
               <div class="space-y-6">
                 <div class="flex items-start space-x-3">
                   <MapPinIcon class="w-5 h-5 text-gray-600 mt-1" />
                   <div>
                     <p class="text-gray-900 font-medium">Address</p>
-                    <p class="text-gray-600">123 Fresh Market Street<br>Organic Valley, CA 90210</p>
+                    <p class="text-gray-600">No. 123, Street 360, Boeung Keng Kang I<br>Phnom Penh, Cambodia</p>
                   </div>
                 </div>
 
@@ -188,7 +196,7 @@
                   <ClockIcon class="w-5 h-5 text-gray-600 mt-1" />
                   <div>
                     <p class="text-gray-900 font-medium">Store Hours</p>
-                    <p class="text-gray-600">Monday - Saturday: 8:00 AM - 8:00 PM<br>Sunday: 9:00 AM - 6:00 PM</p>
+                    <p class="text-gray-600">Monday - Saturday: 8:00 AM - 7:00 PM<br>Sunday: 9:00 AM - 5:00 PM</p>
                   </div>
                 </div>
 
@@ -196,7 +204,7 @@
                   <PhoneIcon class="w-5 h-5 text-gray-600 mt-1" />
                   <div>
                     <p class="text-gray-900 font-medium">Store Phone</p>
-                    <p class="text-gray-600">(555) 123-4567</p>
+                    <p class="text-gray-600">+855 12 345 678</p>
                   </div>
                 </div>
               </div>
@@ -242,108 +250,107 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import {
   PhoneIcon,
   EnvelopeIcon,
   MapPinIcon,
   ClockIcon,
-  ChevronDownIcon
+  ChevronDownIcon ,
+  GlobeAltIcon,
+  ChatBubbleOvalLeftIcon,
+  CameraIcon,
 } from '@heroicons/vue/24/outline'
 
-export default {
-  name: 'Contact',
-  components: {
-    PhoneIcon,
-    EnvelopeIcon,
-    MapPinIcon,
-    ClockIcon,
-    ChevronDownIcon
+// Form reactive data
+const form = ref({
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  subject: '',
+  message: ''
+})
+
+// Contact information
+const contactInfo = ref([
+  {
+    id: 1,
+    title: 'Phone',
+    value: '+855 12 345 678',
+    additional: 'Monday - Friday, 8 AM - 5 PM',
+    icon: PhoneIcon
   },
-  data() {
-    return {
-      form: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      },
-      contactInfo: [
-        {
-          id: 1,
-          title: 'Phone',
-          value: '(555) 123-4567',
-          additional: 'Monday - Friday, 9 AM - 6 PM',
-          icon: 'PhoneIcon'
-        },
-        {
-          id: 2,
-          title: 'Email',
-          value: 'hello@pureflave.com',
-          additional: 'We respond within 24 hours',
-          icon: 'EnvelopeIcon'
-        },
-        {
-          id: 3,
-          title: 'Address',
-          value: '123 Fresh Market Street',
-          additional: 'Organic Valley, CA 90210',
-          icon: 'MapPinIcon'
-        }
-      ],
-      businessHours: [
-        { id: 1, day: 'Monday - Friday', time: '9:00 AM - 6:00 PM' },
-        { id: 2, day: 'Saturday', time: '10:00 AM - 4:00 PM' },
-        { id: 3, day: 'Sunday', time: 'Closed' }
-      ],
-      socialMedia: [
-        { id: 1, name: 'Facebook', url: '#', icon: 'EnvelopeIcon' },
-        { id: 2, name: 'Twitter', url: '#', icon: 'EnvelopeIcon' },
-        { id: 3, name: 'Instagram', url: '#', icon: 'EnvelopeIcon' }
-      ],
-      faqs: [
-        {
-          id: 1,
-          question: 'What are your delivery areas?',
-          answer: 'We currently deliver to most areas within 50 miles of our main distribution center. Enter your zip code at checkout to see if we deliver to your area.',
-          isOpen: false
-        },
-        {
-          id: 2,
-          question: 'How do you ensure fruit freshness?',
-          answer: 'All our fruits are harvested at peak ripeness and delivered within 24-48 hours. We use temperature-controlled storage and transportation to maintain optimal freshness.',
-          isOpen: false
-        },
-        {
-          id: 3,
-          question: 'Do you offer organic certification?',
-          answer: 'Yes, all our fruits are certified organic by USDA standards. We work exclusively with certified organic farms and maintain strict quality control processes.',
-          isOpen: false
-        },
-        {
-          id: 4,
-          question: 'What is your return policy?',
-          answer: 'We offer a 100% satisfaction guarantee. If you\'re not completely satisfied with your order, contact us within 48 hours of delivery for a full refund or replacement.',
-          isOpen: false
-        },
-        {
-          id: 5,
-          question: 'Can I schedule recurring deliveries?',
-          answer: 'Yes! You can set up weekly, bi-weekly, or monthly recurring deliveries. You can modify or pause your subscription at any time through your account dashboard.',
-          isOpen: false
-        }
-      ]
-    }
+  {
+    id: 2,
+    title: 'Email',
+    value: 'hello@pureflave.kh',
+    additional: 'We respond within 24 hours',
+    icon: EnvelopeIcon
   },
-  methods: {
-    toggleFaq(id) {
-      const faq = this.faqs.find(f => f.id === id)
-      if (faq) {
-        faq.isOpen = !faq.isOpen
-      }
-    }
+  {
+    id: 3,
+    title: 'Address',
+    value: 'No. 123, Street 360, Boeung Keng Kang I',
+    additional: 'Phnom Penh, Cambodia',
+    icon: MapPinIcon
+  }
+])
+
+// Business hours
+const businessHours = ref([
+  { id: 1, day: 'Monday - Friday', time: '8:00 AM - 5:00 PM' },
+  { id: 2, day: 'Saturday', time: '9:00 AM - 3:00 PM' },
+  { id: 3, day: 'Sunday', time: 'Closed' }
+])
+
+// Social media links (updated with placeholder URLs)
+const socialMedia = ref([
+  { id: 1, name: 'Facebook', url: 'https://facebook.com/pureflavekh', icon: ChatBubbleOvalLeftIcon },
+  { id: 2, name: 'Twitter', url: 'https://twitter.com/pureflavekh', icon: GlobeAltIcon },
+  { id: 3, name: 'Instagram', url: 'https://instagram.com/pureflavekh', icon: CameraIcon }
+])
+
+// FAQs with reactive isOpen state
+const faqs = ref([
+  {
+    id: 1,
+    question: 'What are your delivery areas?',
+    answer: 'We deliver across Phnom Penh and nearby areas within 20 km of our store. Enter your address at checkout to confirm availability.',
+    isOpen: false
+  },
+  {
+    id: 2,
+    question: 'How do you ensure fruit freshness?',
+    answer: 'Our fruits are sourced daily from local farms in Cambodia and delivered within 24 hours using temperature-controlled transport.',
+    isOpen: false
+  },
+  {
+    id: 3,
+    question: 'Do you offer organic certification?',
+    answer: 'Yes, our fruits are certified organic by local and international standards, ensuring high-quality, chemical-free produce.',
+    isOpen: false
+  },
+  {
+    id: 4,
+    question: 'What is your return policy?',
+    answer: 'We offer a 100% satisfaction guarantee. Contact us within 48 hours of delivery for a refund or replacement if not satisfied.',
+    isOpen: false
+  },
+  {
+    id: 5,
+    question: 'Can I schedule recurring deliveries?',
+    answer: 'Yes, you can set up weekly or monthly deliveries. Manage your subscription through your account dashboard.',
+    isOpen: false
+  }
+])
+
+// Toggle FAQ open/close state
+const toggleFaq = (id) => {
+  const faq = faqs.value.find(f => f.id === id)
+  if (faq) {
+    faq.isOpen = !faq.isOpen
   }
 }
 </script>
@@ -356,4 +363,3 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
 </style>
-

@@ -38,9 +38,11 @@
               </p>
             </div>
             <div class="mt-8">
-              <button class="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105">
-                Shop Our Collection
-              </button>
+              <router-link to="/category">
+                <button class="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105">
+                  Shop Our Collection
+                </button>
+              </router-link>
             </div>
           </div>
           <div class="relative">
@@ -81,7 +83,7 @@
           </div>
           <div class="text-center group">
             <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-gray-100 transition-colors duration-300 shadow-sm border border-gray-200">
-              <HeartIcon class="w-8 h-8 text-gray-700" />
+              <StarIcon class="w-8 h-8 text-gray-700" />
             </div>
             <h3 class="text-xl font-medium text-gray-900 mb-3">Quality</h3>
             <p class="text-gray-600 leading-relaxed">
@@ -154,80 +156,76 @@
           and promoting healthy living in our communities."
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <button class="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105">
-            Join Our Mission
-          </button>
-          <button class="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-50 transition-all duration-300">
-            Learn More
-          </button>
+          <router-link to="/contact">
+            <button class="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105">
+              Join Our Mission
+            </button>
+          </router-link>
         </div>
       </div>
     </section>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import {
   HeartIcon,
-  UsersIcon
+  UsersIcon,
+  StarIcon
 } from '@heroicons/vue/24/outline'
+import person1 from '@/assets/person-1.jpg'
+import person2 from '@/assets/person-2.jpg'
+import person3 from '@/assets/person-3.jpg'
 
-export default {
-  name: 'About',
-  components: {
-    HeartIcon,
-    UsersIcon
+// Team members data with working image URLs
+const teamMembers = ref([
+  {
+    id: 1,
+    name: 'Sarah Johnson',
+    role: 'Founder & CEO',
+    bio: 'Passionate about sustainable agriculture and connecting communities with fresh, healthy food.',
+    image: person1
   },
-  data() {
-    return {
-      teamMembers: [
-        {
-          id: 1,
-          name: 'Sarah Johnson',
-          role: 'Founder & CEO',
-          bio: 'Passionate about sustainable agriculture and connecting communities with fresh, healthy food.',
-          image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face'
-        },
-        {
-          id: 2,
-          name: 'Michael Chen',
-          role: 'Head of Operations',
-          bio: 'Ensures our supply chain runs smoothly and maintains the highest quality standards.',
-          image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face'
-        },
-        {
-          id: 3,
-          name: 'Emily Rodriguez',
-          role: 'Customer Experience',
-          bio: 'Dedicated to providing exceptional service and building lasting relationships with our customers.',
-          image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face'
-        }
-      ],
-      stats: [
-        {
-          id: 1,
-          value: '50+',
-          label: 'Partner Farms'
-        },
-        {
-          id: 2,
-          value: '10K+',
-          label: 'Happy Customers'
-        },
-        {
-          id: 3,
-          value: '100%',
-          label: 'Organic Certified'
-        },
-        {
-          id: 4,
-          value: '24/7',
-          label: 'Fresh Delivery'
-        }
-      ]
-    }
+  {
+    id: 2,
+    name: 'Michael Chen',
+    role: 'Head of Operations',
+    bio: 'Ensures our supply chain runs smoothly and maintains the highest quality standards.',
+    image: person2
+  },
+  {
+    id: 3,
+    name: 'Emily Rodriguez',
+    role: 'Customer Experience',
+    bio: 'Dedicated to providing exceptional service and building lasting relationships with our customers.',
+    image: person3
   }
-}
+])
+
+// Statistics data
+const stats = ref([
+  {
+    id: 1,
+    value: '50+',
+    label: 'Partner Farms'
+  },
+  {
+    id: 2,
+    value: '10K+',
+    label: 'Happy Customers'
+  },
+  {
+    id: 3,
+    value: '100%',
+    label: 'Organic Certified'
+  },
+  {
+    id: 4,
+    value: '24/7',
+    label: 'Fresh Delivery'
+  }
+])
 </script>
 
 <style scoped>
@@ -235,4 +233,3 @@ export default {
   aspect-ratio: 1 / 1;
 }
 </style>
-

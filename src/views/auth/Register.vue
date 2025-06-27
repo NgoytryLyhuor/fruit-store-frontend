@@ -221,17 +221,19 @@
       </div>
     </div>
   </div>
+  <Snackbar ref="snackbar" />
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
+import Snackbar from '@/components/Snackbar.vue'
 
 const router = useRouter()
+const snackbar = ref(null)
 
-// Form data for regular registration
 const form = ref({
   firstName: '',
   lastName: '',
@@ -241,17 +243,13 @@ const form = ref({
   acceptTerms: false
 })
 
-// UI state
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const isLoading = ref(false)
-const isGoogleLoading = ref(false)
 
-// Messages
 const errorMessage = ref('')
-const successMessage = ref('')
 
-// Check password strength (0-4)
+// Password strength: 0 (weak) to 4 (strong)
 const passwordStrength = computed(() => {
   const password = form.value.password
   if (!password) return 0
@@ -265,7 +263,6 @@ const passwordStrength = computed(() => {
   return strength
 })
 
-// Password strength text
 const passwordStrengthText = computed(() => {
   const strength = passwordStrength.value
   if (!form.value.password) return 'Enter a password'
@@ -276,12 +273,10 @@ const passwordStrengthText = computed(() => {
   return 'Very weak password'
 })
 
-// Check if passwords match
 const passwordsMatch = computed(() => {
   return form.value.password === form.value.confirmPassword
 })
 
-// Check if form is valid
 const isFormValid = computed(() => {
   return (
     form.value.firstName &&
@@ -295,7 +290,6 @@ const isFormValid = computed(() => {
   )
 })
 
-// Get color for password strength indicator
 const getPasswordStrengthColor = (index) => {
   const strength = passwordStrength.value
   if (index <= strength) {
@@ -307,130 +301,38 @@ const getPasswordStrengthColor = (index) => {
   return 'bg-gray-200'
 }
 
-// Handle regular registration (email/password)
 const handleRegister = async () => {
-  // Clear previous messages
   errorMessage.value = ''
-  successMessage.value = ''
   isLoading.value = true
 
   try {
-    // Prepare data for Laravel API
     const registrationData = {
       first_name: form.value.firstName,
       last_name: form.value.lastName,
       email: form.value.email,
       password: form.value.password,
-      role: 'customer' // Default role
+      role: 'customer'
     }
 
-    // Send registration request to Laravel API
     const response = await api.post('/auth/register', registrationData)
 
-    // Check if registration was successful
-    if (response.data.success) {
-      successMessage.value = response.data.message
-
-      // Store user data and token in localStorage (for persistence)
-      localStorage.setItem('user', JSON.stringify(response.data.data.user))
-      localStorage.setItem('token', response.data.data.token)
-
-      // Set authorization header for future requests
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`
-
-      // Redirect to dashboard or home page after 2 seconds
+    if (response.data.status) {
+      snackbar.value.showSnackbar('Registration successful! Redirecting to dashboard...')
       setTimeout(() => {
-        router.push('/dashboard') // Change to your desired route
+        router.push('/login')
       }, 2000)
     } else {
-      errorMessage.value = response.data.message || 'Registration failed'
+      snackbar.value.showSnackbar(response.data.message || 'Registration failed', 'error')
     }
 
   } catch (error) {
     console.error('Registration error:', error)
-
-    // Handle different types of errors
-    if (error.response) {
-      // Server responded with error status
-      if (error.response.data && error.response.data.message) {
-        errorMessage.value = error.response.data.message
-      } else if (error.response.data && error.response.data.errors) {
-        // Handle validation errors
-        const errors = error.response.data.errors
-        const errorMessages = Object.values(errors).flat()
-        errorMessage.value = errorMessages.join(', ')
-      } else {
-        errorMessage.value = 'Registration failed. Please try again.'
-      }
-    } else if (error.request) {
-      // Request was made but no response received
-      errorMessage.value = 'Unable to connect to server. Please check your internet connection.'
-    } else {
-      // Something else happened
-      errorMessage.value = 'An unexpected error occurred. Please try again.'
-    }
   } finally {
     isLoading.value = false
   }
 }
-
-// Handle Google registration
-const handleGoogleRegister = async () => {
-  errorMessage.value = ''
-  successMessage.value = ''
-  isGoogleLoading.value = true
-
-  try {
-    // Replace with your Laravel backend URL
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-    window.location.href = `${backendUrl}/auth/google`
-  } catch (error) {
-    console.error('Google registration error:', error)
-    errorMessage.value = 'Google registration failed. Please try again.'
-    isGoogleLoading.value = false
-  }
-}
-
-// When component is mounted, check if user came back from Google OAuth
-onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  const token = urlParams.get('token')
-  const user = urlParams.get('user')
-  const error = urlParams.get('error')
-
-  if (token && user) {
-    try {
-      const userData = JSON.parse(decodeURIComponent(user))
-
-      // Store user data and token
-      localStorage.setItem('user', JSON.stringify(userData))
-      localStorage.setItem('token', token)
-
-      // Set authorization header
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-
-      successMessage.value = 'Google registration successful! Redirecting...'
-
-      // Clear URL parameters
-      const cleanUrl = window.location.origin + window.location.pathname
-      window.history.replaceState({}, document.title, cleanUrl)
-
-      // Redirect to dashboard
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 2000)
-    } catch (e) {
-      console.error('Error parsing user data:', e)
-      errorMessage.value = 'Error processing Google registration data'
-    }
-  } else if (error) {
-    errorMessage.value = decodeURIComponent(error)
-    // Clear error from URL
-    const cleanUrl = window.location.origin + window.location.pathname
-    window.history.replaceState({}, document.title, cleanUrl)
-  }
-})
 </script>
+
 
 <style scoped>
 /* Custom focus styles */
@@ -449,3 +351,8 @@ input:focus {
   animation: spin 1s linear infinite;
 }
 </style>
+
+
+
+
+console.log(response.data)

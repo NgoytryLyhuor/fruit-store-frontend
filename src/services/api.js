@@ -1,7 +1,17 @@
 import axios from 'axios'
 
+// Environment-based URL configuration
+const getBaseURL = () => {
+  // Check if we're in development (localhost)
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:8000/api'
+  }
+  // Production URL
+  return 'https://fruit-store-backend-xoke.onrender.com/api'
+}
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'

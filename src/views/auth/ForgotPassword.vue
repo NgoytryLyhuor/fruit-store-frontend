@@ -115,9 +115,11 @@
       </div>
     </div>
   </div>
+  <Snackbar ref="snackbar" />
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import {
   CheckIcon,
   ArrowLeftIcon,
@@ -125,60 +127,73 @@ import {
   ClockIcon,
   ShieldCheckIcon
 } from '@heroicons/vue/24/outline'
+import api from '@/services/api'
+import Snackbar from '@/components/Snackbar.vue'
 
-export default {
-  name: 'ForgotPassword',
-  components: {
-    CheckIcon,
-    ArrowLeftIcon,
-    QuestionMarkCircleIcon,
-    ClockIcon,
-    ShieldCheckIcon
-  },
-  data() {
-    return {
-      form: {
-        email: ''
-      },
-      isLoading: false,
-      emailSent: false
+const form = ref({
+  email: ''
+})
+const snackbar = ref(null)
+const isLoading = ref(false)
+const emailSent = ref(false)
+
+const handleResetRequest = async () => {
+  isLoading.value = true
+
+  try {
+    const response = await api.post('/auth/forgot-password', {
+      email: form.value.email
+    })
+
+    if (response.data && response.data.status) {
+      emailSent.value = true
+    } else {
+      // Show backend error message
+      snackbar.value.showSnackbar(response.data.message || 'Failed to send reset link.', 'error')
     }
-  },
-  methods: {
-    async handleResetRequest() {
-      this.isLoading = true
-
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500))
-
-        // Handle password reset request logic here
-        console.log('Password reset requested for:', this.form.email)
-
-        this.emailSent = true
-      } catch (error) {
-        console.error('Password reset error:', error)
-      } finally {
-        this.isLoading = false
+  } catch (error) {
+    if (error.response) {
+      // Handle validation or not found errors from backend
+      const data = error.response.data
+      let message = data.message || 'Failed to send reset link.'
+      if (data.errors && data.errors.email) {
+        message = data.errors.email[0]
       }
-    },
-
-    async resendEmail() {
-      this.isLoading = true
-
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        console.log('Resending email to:', this.form.email)
-
-        // Show success message or notification
-      } catch (error) {
-        console.error('Resend email error:', error)
-      } finally {
-        this.isLoading = false
-      }
+      snackbar.value.showSnackbar(message, 'error')
+    } else {
+      snackbar.value.showSnackbar('Network error. Please try again.', 'error')
     }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const resendEmail = async () => {
+  isLoading.value = true
+
+  try {
+    const response = await api.post('/auth/resend-password-reset', {
+      email: form.value.email
+    })
+
+    if (response.data && response.data.status) {
+      snackbar.value.showSnackbar(response.data.message || 'Password reset link resent.', 'success')
+    } else {
+      snackbar.value.showSnackbar(response.data.message || 'Failed to resend reset link.', 'error')
+    }
+  } catch (error) {
+    if (error.response) {
+      const data = error.response.data
+      let message = data.message || 'Failed to resend reset link.'
+      if (data.errors && data.errors.email) {
+        message = data.errors.email[0]
+      }
+      snackbar.value.showSnackbar(message, 'error')
+    } else {
+      snackbar.value.showSnackbar('Network error. Please try again.', 'error')
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
