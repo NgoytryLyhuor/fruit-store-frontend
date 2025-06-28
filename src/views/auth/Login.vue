@@ -206,7 +206,7 @@
   }
 
   const redirectToGoogle = () => {
-    window.location.href = 'http://localhost:8000/auth/google/redirect'
+    window.location.href = 'https://fruit-store-backend-xoke.onrender.com/auth/google/redirect'
   }
 
   // Your existing handleLogin function
