@@ -10,8 +10,9 @@ import Cart from '../views/user/Cart.vue'
 import Profile from '../views/user/Profile.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import Checkout from '../views/user/Checkout.vue'
-import { useAuth } from '@/composables/useAuth'
 import ResetPassword from '@/views/auth/ResetPassword.vue'
+import NotFound from '../views/public/NotFound.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -103,6 +104,12 @@ const router = createRouter({
         requiresAuth: true,
         allowedRoles: ['admin']
       }
+    },
+    // 404 Not Found route - must be last
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFound,
     }
   ],
 })
