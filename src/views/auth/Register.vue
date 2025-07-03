@@ -176,7 +176,7 @@
           </div>
 
           <!-- Divider -->
-          <div class="relative">
+          <div class="relative" style="display: none;">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full text-gray-500 border-t border-gray-300"></div>
             </div>
@@ -186,7 +186,7 @@
           </div>
 
           <!-- Google Registration Button -->
-          <div class="w-full">
+          <div class="w-full" style="display: none;">
             <button
               type="button"
               @click="handleGoogleRegister"
