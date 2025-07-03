@@ -7,7 +7,7 @@ const getBaseURL = () => {
     return 'http://localhost:8000/api'
   }
   // Production URL
-  return 'https://fruit-store-backend-xoke.onrender.com/api'
+  return 'https://pure-flave.apilab.website/api'
 }
 
 const api = axios.create({

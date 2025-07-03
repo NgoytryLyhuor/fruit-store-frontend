@@ -206,7 +206,16 @@
   }
 
   const redirectToGoogle = () => {
-    window.location.href = 'http://127.0.0.1:8000/auth/google/redirect'
+    // Check if running locally
+    const isLocal = window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1';
+
+    // Use local URL if running locally, otherwise use production URL
+    const url = isLocal
+      ? 'http://127.0.0.1:8000/auth/google/redirect'
+      : 'https://pure-flave.apilab.website/auth/google/redirect';
+
+    window.location.href = url;
   }
 
   // Your existing handleLogin function
