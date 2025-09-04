@@ -1,8 +1,6 @@
 import axios from 'axios'
 
-// Environment-based URL configuration
 const getBaseURL = () => {
-  // Check if we're in development (localhost)
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:8000/api'
   }
@@ -37,7 +35,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    // Remove the console.warn - it's normal to not have a token sometimes
 
     return config
   },
